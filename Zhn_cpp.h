@@ -4,6 +4,8 @@ by user zhouyundong_2012.
 The copyright is not specified.
 */
 //====================================
+extern size_t SKBFORCE_guesses;
+
 #include "Zhtables_cpp.h" // also describes the pattern
 ZH_GLOBAL2 zh_g2;
  /*ZH_1D class to solve one digit 3 bands
@@ -85,7 +87,8 @@ void ZH_1D::Guess() {// not yet solved
 	}
 }
 void ZH_1D::GuessGo(int cell) {
-	*this = *(this - 1);
+    SKBFORCE_guesses++;
+    *this = *(this - 1);
 	FD &= AssignMask_Digit[cell];// unsolved row already updated
 	if (Update()) return; // locked
 	if (!FD.bf.u32[3]) zh1d_g.Add(FD);
@@ -331,7 +334,8 @@ int ZHOU::ApplySingleOrEmptyCells() {
 	return 0;
 }
 void ZHOU::GuessGo(int dig, BF128& s) {
-	*this = *(this - 1);
+    SKBFORCE_guesses++;
+    *this = *(this - 1);
 	BF128 assigned_cells = s & cells_unsolved;
 	FD[0][0] -= assigned_cells;	FD[1][0] -= assigned_cells;
 	FD[2][0] -= assigned_cells;	FD[3][0] -= assigned_cells;
@@ -383,6 +387,7 @@ void ZHOU::GuessInCell() {
 		cell = From_128_To_81[xcell], tdig[2], ndig = 0;
 	for (int idig = 0; idig < 9; idig++)
 		if (FD[idig][0].On(xcell))tdig[ndig++] = idig;
+    SKBFORCE_guesses++;
 	ZHOU * mynext = this + 1; // start next guess
 	*mynext=*this;
 	mynext->SetaCom(tdig[0], cell, xcell);
@@ -452,6 +457,7 @@ int ZHOU::GuessHiddenBivalue() {// look a hidden pair in row or box
 exitok:
 	uint32_t res;
 	bitscanforward(res, hidden);
+    SKBFORCE_guesses++;
 	ZHOU * mynext = this + 1; // start next guess
 	*mynext=*this;
 	mynext->SetaCom(idig, res + dcell, res + dxcell);
